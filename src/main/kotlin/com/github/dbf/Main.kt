@@ -38,7 +38,6 @@ class MyView: View() {
 
         subscribe<TableInfoViewEvent> { event ->
             center = tableview<Column> {
-                smartResize()
                 event.tableInfoView.columns.forEach{
                     readonlyColumn(it.title, Column::value)
                 }
