@@ -20,6 +20,7 @@ javafx {
 mainClassName = 'com.github.dbf.Main'
 
 dependencies {
+    implementation "com.github.albfernandez:javadbf:1.10.1"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     implementation 'no.tornado:tornadofx:1.7.17'
 }

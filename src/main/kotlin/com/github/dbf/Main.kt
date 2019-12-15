@@ -1,50 +1,64 @@
 package com.github.dbf
 
+import javafx.beans.property.SimpleStringProperty
+import javafx.collections.FXCollections
+import javafx.stage.FileChooser
 import tornadofx.*
+import java.io.File
+import java.nio.charset.Charset
+
 
 fun main(args: Array<String>) {
     launch<Main>(args)
 }
 
-class Main: App(MyView::class)
+val avalableCharsets = FXCollections.observableArrayList(Charset.availableCharsets().keys)
 
-class Column(val title: String, val value: String)
-class TableInfoView(val columns: List<Column>)
-class TableInfoViewEvent(val tableInfoView: TableInfoView) : FXEvent()
+class Main : App(MyView::class)
 
-class MyView: View() {
 
-    val openButtonController: OpenButtonController by inject()
-    val saveAsButtonController: SaveAsButtonController by inject()
+class MyView : View() {
+
+    val tableController: TableController by inject()
 
     override val root = borderpane {
-
         top = hbox {
-            button("Open"){
+            button("Open file") {
                 action {
-                    openButtonController.writeToDb("Hello")
+                    val dbfFiles: List<File> = chooseFile(
+                        "Single + non/block",
+                               arrayOf(
+                                   FileChooser.ExtensionFilter("DBF files (*.dbf)", "*.dbf", "*.DBF")
+                               )
+                        ,FileChooserMode.Single
+                    )
+                    tableController.openDbf(dbfFiles)
                 }
             }
-            button("Save As"){
-                action {
-                    saveAsButtonController.writeToDb("Hello")
-                }
-            }
+            combobox(tableController.selectedCharset, avalableCharsets)
         }
 
         center = hbox {
-         label("Пусто")
+            label("Пусто")
         }
 
         subscribe<TableInfoViewEvent> { event ->
-            center = tableview<Column> {
-                event.tableInfoView.columns.forEach{
-                    readonlyColumn(it.title, Column::value)
+            center {
+                tableview(event.rows) {
+                    isEditable = true
+                    event.rows.first().keys.forEach{
+                        column(it, String::class) {
+                            value { row ->
+                                SimpleStringProperty(row.value.get(it)!!.stringValue)
+                            }
+                        }.makeEditable()
+                    }
                 }
-                items = event.tableInfoView.columns.observable();
             }
+
         }
-     }
+        setMinSize(500.toDouble(), 500.toDouble())
     }
 
+}
 
