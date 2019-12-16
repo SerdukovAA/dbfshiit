@@ -31,6 +31,9 @@ class TableController: Controller() {
     }
 
     fun openDbf(dbfFiles: List<File>) {
+        if(dbfFiles.isEmpty()){
+            return;
+        }
         currentDbfFile = dbfFiles[0];
         refreshTable()
     }
